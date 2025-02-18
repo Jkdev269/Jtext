@@ -25,10 +25,12 @@ if (!io) {
 }
 
   // Emit to the *receiver's* room
-  io.to(receiverIdString).emit('receiveMessage', { 
+  io.to(receiver._id.toString()).emit('receiveMessage', { 
     sender: sender._id, 
     text: text, // Send the text, not the entire message object
     senderUsername: fromUsername, // Include the sender's username
+    _id: message._id, // Include the message _id
+    createdAt: message.createdAt // Include the timestamp
 });
       res.status(200).json({ message: 'Message sent', data: message });
   } catch (error) {
