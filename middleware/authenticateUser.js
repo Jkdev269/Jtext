@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const authenticateUser = (req, res, next) => {
+const authenticateUser =async (req, res, next) => {
   const token = req.cookies.token; // Ensure the token is in the cookies
 
   if (!token) {
@@ -11,7 +11,11 @@ const authenticateUser = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user; // Attach the user info to the request object
+    const user = await User.findById(decoded.user.id); 
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+    req.user = user; // Attach the user info to the request object
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
     console.error('Token verification failed:', error);

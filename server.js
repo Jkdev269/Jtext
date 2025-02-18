@@ -2,51 +2,72 @@ const express = require('express');
 const connectDB = require('./config/db');
 const cors = require('cors');
 const http = require('http');
-const socketHandler = require('./utils/socket');
+const socketIo = require('socket.io');
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/userRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const path = require('path');
-const app = express();
 const cookieParser = require('cookie-parser');
+
+const app = express();
+const server = http.createServer(app); // Create HTTP server
+const io = socketIo(server, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+        credentials: true,
+    }
+});
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-// Use CORS middleware
+
+// Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow your frontend origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-  credentials: true, // Allow cookies if needed
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
 }));
 app.use(cookieParser());
-
-// Middleware for parsing JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to the database
+// Connect to DB
 connectDB();
 
-// Route definitions
+// Routes
 app.use('/api/auth', authRouter);
 app.use('/api', userRouter);
 app.use('/api/private-messages', messageRoutes);
 app.use('/api/group-messages', groupRoutes);
-// Use profile routes
 app.use('/api/user', profileRoutes);
 
-// Health check route
-app.get('/health', (req, res) => {
-  res.send('Frontend page');
+// WebSocket Connection
+app.set("socketio", io);
+io.on('connection', (socket) => {
+    console.log('New client connected:', socket.id);
+
+    socket.on('joinRoom', (room) => {
+        socket.join(room);
+        console.log(`User ${socket.id} joined room: ${room}`);
+        });
+    socket.on('leaveRoom', (room) => {
+        socket.leave(room);
+        console.log(`User ${socket.id} left room: ${room}`);
+    });
+
+    socket.on("sendMessage", (messageData) => {
+        console.log("Message Sent:", messageData);
+        io.to(messageData.room).emit("receiveMessage", messageData);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
 });
 
-// Create an HTTP server
-const server = http.createServer(app);
-
-// Initialize the WebSocket server
-const io = socketHandler(server);
-
-// Start the HTTP server
+// Start server
 server.listen(8081, () => {
-  console.log('Server is running on http://localhost:8080');
+    console.log('Server is running on http://localhost:8081');
 });

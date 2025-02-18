@@ -2,7 +2,7 @@ const User = require('../models/user'); // Import the User model
 
 // Controller to upload profile image
 const uploadProfileImage = async (req, res) => {
-  const { userId } = req.body;
+  const { userId } = req.user.id;
 
   try {
     const user = await User.findById(userId);
@@ -29,17 +29,34 @@ const getUserProfile = async (req, res) => {
     const userId = req.user.id;
 
     // Fetch user details from the database
-    const user = await User.findById(userId).select('-password'); // Exclude the password field
+    const user = await User.findById(userId).select('-password').populate({path: "friendRequests.from",select: "username profileImage"}); // Exclude the password field
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     res.status(200).json({
+      username: user.username,
       name: user.username,
       email: user.email,
+      _id: user._id,
       profileImage: user.profileImage,
+      // friendRequests: user.friendRequests || [],
       createdAt: user.createdAt,
+      friends: user.friends.map(friend => ({
+        _id: friend._id,
+        id: friend._id,
+        username: friend.username,
+        profileImage: friend.profileImage || "https://via.placeholder.com/150",
+      }))
+      ,
+      friendRequests: user.friendRequests.map((req) => ({
+        id: req._id,
+        senderName: req.from?.username || "Unknown User",
+        senderUsername: req.from?.username || "unknown",
+        senderProfileImage: req.from?.profileImage || "https://via.placeholder.com/150",
+      })),
+
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);

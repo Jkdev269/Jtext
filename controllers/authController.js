@@ -9,7 +9,7 @@ const cookieOptions = {
   httpOnly: true, // Prevent client-side scripts from accessing the cookie
   secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
   sameSite: 'strict', // Helps prevent CSRF attacks
-  maxAge: 3600000, // Cookie expiration time in milliseconds (1 hour)
+  maxAge: 30 * 24 * 60 * 60 * 1000, // Cookie expiration time in milliseconds (30 day)
 };
 
 const generateOTP = () => {
@@ -42,7 +42,7 @@ const generateOTP = () => {
         },
       };
   
-      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
       res.cookie('token', token, cookieOptions);
       res.status(201).json({ message: 'Signup successful', user: { username, email } });
       // res.status(201).json({ token });
@@ -73,14 +73,14 @@ exports.login = async (req, res) => {
       },
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     // Set cookie with token
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day
     };
     res.cookie('token', token, cookieOptions);
 
@@ -88,6 +88,7 @@ exports.login = async (req, res) => {
       message: 'Login successful',
       user: {token:token, username: user.username, email: user.email },
     });
+    console.log(res.status, res.json);
   } catch (error) {
     console.error('Login error:', error.message);
     res.status(500).send('Server error');
