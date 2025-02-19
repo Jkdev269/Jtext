@@ -62,3 +62,57 @@ exports.getMessages = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+  exports.markMessageAsSeen = async (req, res) => {
+    try {
+        const { messageId } = req.params;
+        const { userId } = req.body;  // Get userId from request body
+
+        console.log("🔍 Incoming request to mark as seen:", { messageId, userId });
+
+        const message = await Message.findById(messageId);
+        
+        if (!message) {
+            return res.status(404).json({ message: "Message not found" });
+        }
+
+        console.log("💬 Message found:", {
+            sender: message.sender.toString(), 
+            receiver: message.receiver.toString(),
+            requestUserId: userId
+        });
+
+        // Check if the user making the request is the receiver of the message
+        if (message.receiver.toString() !== userId) {
+            console.log("❌ Unauthorized action: Receiver mismatch", {
+                messageReceiver: message.receiver.toString(),
+                requestUser: userId
+            });
+            return res.status(403).json({ 
+                message: "Unauthorized action",
+                details: "Only the message receiver can mark it as seen"
+            });
+        }
+
+        message.status = "seen";
+        await message.save();
+
+        // Emit event to sender
+        const io = req.app.get("socketio");
+        io.to(message.sender.toString()).emit("messageSeen", messageId, userId);
+
+        console.log("✅ Message marked as seen and event emitted");
+
+        res.status(200).json({ 
+            message: "Message marked as seen",
+            messageId: message._id,
+            status: message.status
+        });
+    } catch (error) {
+        console.error("❌ Error marking message as seen:", error);
+        res.status(500).json({ 
+            message: "Internal server error",
+            error: error.message 
+        });
+    }
+};
+

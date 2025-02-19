@@ -6,7 +6,7 @@ const MessageSchema = new mongoose.Schema({
   receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   text: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
-  status: { type: String, enum: ['sent', 'received'], default: 'sent' },
+  status: { type: String, enum: ['sent', 'received','seen'], default: 'sent' },
 });
 
 module.exports = mongoose.model('Message', MessageSchema);
