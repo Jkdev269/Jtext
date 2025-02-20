@@ -61,6 +61,10 @@ io.on('connection', (socket) => {
         console.log("Message Sent:", messageData);
         io.to(messageData.room).emit("receiveMessage", messageData);
     });
+    socket.on('messageSeen', (messageId, userId) => {
+        // Broadcast to all connected clients that message was seen
+        io.emit('messageSeen', messageId, userId);
+    });
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
