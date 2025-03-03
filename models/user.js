@@ -25,7 +25,7 @@ const UserSchema = mongoose.Schema({
             ref:'User'
         },
      ],
-     profileImage: { type: String, default: 'https://via.placeholder.com/150' }, // Default profile image
+     profileImage: { type: String, default: 'https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png' }, // Default profile image
 },
 { timestamps: true }
 )

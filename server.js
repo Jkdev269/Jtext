@@ -10,12 +10,15 @@ const groupRoutes = require('./routes/groupRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const dotenv = require('dotenv');
+dotenv.config();
+const Port=process.env.PORT;
 
 const app = express();
 const server = http.createServer(app); // Create HTTP server
 const io = socketIo(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: process.env.CORS_ORIGIN,
         methods: ["GET", "POST"],
         credentials: true,
     }
@@ -25,7 +28,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.CORS_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
@@ -172,6 +175,6 @@ socket.on("voiceCallEnded", (data) => {
 });
 
 // Start server
-server.listen(8081, () => {
-    console.log('Server is running on http://localhost:8081');
+server.listen(Port, () => {
+    console.log(`Server is running on ${Port}`);
 });

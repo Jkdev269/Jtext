@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const transporter = require('../config/nodemailer');
 const cookieOptions = {
   httpOnly: true, // Prevent client-side scripts from accessing the cookie
-  secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+  secure: process.env.COOKIES_SECRET, // Use secure cookies in production
   sameSite: 'strict', // Helps prevent CSRF attacks
   maxAge: 30 * 24 * 60 * 60 * 1000, // Cookie expiration time in milliseconds (30 day)
 };
@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
     // Set cookie with token
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.COOKIES_SECRET,
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day
       path: '/',
@@ -198,3 +198,62 @@ exports.resetPassword = async (req, res) => {
     }
   };
 
+  // In your controller file
+exports.socialLoginController = async (req, res) => {
+  try {
+    const { email, username, profileImage } = req.body;
+    
+    // Check if this user already exists in your database
+    let user = await User.findOne({ email });
+    
+    if (!user) {
+      // If user doesn't exist, create a new one
+      // We'll generate a random password since they'll never use it
+      const randomPassword = Math.random().toString(36).slice(-10) + 
+                          Math.random().toString(36).slice(-10);
+      
+      // Create the user with your existing User model
+      user = new User({
+        email,
+        username,
+        password: randomPassword, // You'd hash this normally
+        profileImage
+      });
+      
+      await user.save();
+    }
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
+
+    // Set cookie with token
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.COOKIES_SECRET,
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day
+      path: '/',
+    };
+    res.cookie('token', token, cookieOptions);
+    // At this point, user exists in your database
+    // Return user info (and JWT token if you use them)
+    res.json({
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        profileImage: user.profileImage
+      },
+      // If you use JWT tokens:
+      // token: generateJwtToken(user._id)
+    });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

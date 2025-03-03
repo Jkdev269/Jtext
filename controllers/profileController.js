@@ -47,14 +47,14 @@ const getUserProfile = async (req, res) => {
         _id: friend._id,
         id: friend._id,
         username: friend.username,
-        profileImage: friend.profileImage || "https://via.placeholder.com/150",
+        profileImage: friend.profileImage || "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png",
       }))
       ,
       friendRequests: user.friendRequests.map((req) => ({
         id: req._id,
         senderName: req.from?.username || "Unknown User",
         senderUsername: req.from?.username || "unknown",
-        senderProfileImage: req.from?.profileImage || "https://via.placeholder.com/150",
+        senderProfileImage: req.from?.profileImage || "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-Image.png",
       })),
 
     });

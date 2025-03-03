@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/send',authenticateUser,sendMessage);
 router.get('/:fromUsername/:toUsername',authenticateUser, getMessages);
-router.put('/seen/:messageId',authenticateUser ,markMessageAsSeen); // New route
+router.put('/seen/:messageId',authenticateUser ,markMessageAsSeen); 
 
 
 module.exports = router;

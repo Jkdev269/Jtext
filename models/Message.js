@@ -7,7 +7,6 @@ const MessageSchema = new mongoose.Schema({
   text: {
     type: String,
     required: function() {
-        // Text is only required if there's no image
         return !this.imageUrl;
     }
 },
