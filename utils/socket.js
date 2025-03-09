@@ -8,7 +8,7 @@ const users = {};
 const socketHandler = (server) => {
   const io = socketio(server, {
     cors: {
-      origin: 'http://localhost:5173', // Allow requests from your React frontend
+      origin: 'http://jtext-me.s3-website.eu-north-1.amazonaws.com', // Allow requests from your React frontend
       methods: ['GET', 'POST'],
       credentials: true, // Allow cookies and credentials if needed
     },
