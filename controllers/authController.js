@@ -7,9 +7,8 @@ const cookieParser = require('cookie-parser');
 const transporter = require('../config/nodemailer');
 const cookieOptions = {
   httpOnly: true, // Prevent client-side scripts from accessing the cookie
-  secure: process.env.COOKIES_SECRET, // Use secure cookies in production
   sameSite: 'strict', // Helps prevent CSRF attacks
-  maxAge: 30 * 24 * 60 * 60 * 1000, // Cookie expiration time in milliseconds (30 day)
+  // maxAge: 30 * 24 * 60 * 60 * 1000, // Cookie expiration time in milliseconds (30 day)
 };
 
 const generateOTP = () => {
@@ -76,13 +75,6 @@ exports.login = async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     // Set cookie with token
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.COOKIES_SECRET,
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day
-      path: '/',
-    };
     res.cookie('token', token, cookieOptions);
 
     res.status(200).json({
@@ -230,14 +222,6 @@ exports.socialLoginController = async (req, res) => {
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
 
-    // Set cookie with token
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.COOKIES_SECRET,
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day
-      path: '/',
-    };
     res.cookie('token', token, cookieOptions);
     // At this point, user exists in your database
     // Return user info (and JWT token if you use them)
