@@ -48,8 +48,7 @@ exports.sendMessage = async (req, res) => {
             // If there's an uploaded file, set the imageUrl
             if (req.file) {
                 imageUrl = `/uploads/images/${req.file.filename}`;
-                // console.log("🔹 Received Data:", req.body);
-                console.log("📸 Uploaded File:", req.file);
+             
             }
 
             // Find users

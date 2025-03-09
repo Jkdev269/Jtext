@@ -40,6 +40,9 @@ app.use(express.urlencoded({ extended: true }));
 connectDB();
 
 // Routes
+app.get('/', (req, res) => {
+    res.send('API is running');
+});
 app.use('/api/auth', authRouter);
 app.use('/api', userRouter);
 app.use('/api/private-messages', messageRoutes);
