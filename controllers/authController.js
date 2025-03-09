@@ -7,7 +7,8 @@ const cookieParser = require('cookie-parser');
 const transporter = require('../config/nodemailer');
 const cookieOptions = {
   httpOnly: true, // Prevent client-side scripts from accessing the cookie
-  sameSite: 'strict', // Helps prevent CSRF attacks
+  secure:true,
+  sameSite: 'none', // Helps prevent CSRF attacks
   // maxAge: 30 * 24 * 60 * 60 * 1000, // Cookie expiration time in milliseconds (30 day)
 };
 
