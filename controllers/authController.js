@@ -92,7 +92,7 @@ exports.login = async (req, res) => {
 
 
   exports.logout = (req, res) => {
-    res.clearCookie('token', { httpOnly: true, sameSite: 'strict' });
+    res.clearCookie('token', { httpOnly: true, sameSite: 'none' });
     res.status(200).json({ message: 'Logged out successfully' });
   };
 // Send OTP for password reset
