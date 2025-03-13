@@ -172,9 +172,10 @@ socket.on("voiceCallEnded", (data) => {
 });
   // Disconnect
   socket.on('disconnect', () => {
-    // Find and remove the disconnected user
-    // This requires keeping track of socket.id to userId mapping
+    onlineUsers.delete(socket.userId); // Remove user from onlineUsers
+    io.emit('userOffline', socket.userId); // Notify others that the user is offline
   });
+
 });
 
 // Start server
